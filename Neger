@@ -1,0 +1,100 @@
+package ayy.lmao;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class Neger extends JPanel implements Runnable{
+	private static final long serialVersionUID = 11;
+	
+	private Thread thread;
+	private boolean running;
+	
+	private BufferedImage image;
+	private Graphics2D g2d;
+	private TileMap tileMap;
+	
+	private final int width, height;
+	
+	public Neger(int width, int height){
+		super();
+		this.width = width;
+		this.height = height;
+		setFocusable(true);
+		requestFocus();
+	}
+	
+	public void addNotify(){
+		super.addNotify();
+		if(thread == null){
+			thread = new Thread(this);
+			thread.start();
+		}
+	}
+	
+	public void run(){
+		
+		init();
+		
+		long startTime;
+		long urdTime;
+		long waitTime;
+		
+		while(running){
+			startTime = System.nanoTime();
+			
+			update();
+			render();
+			draw();
+			
+			
+			urdTime = (System.nanoTime() - startTime) / 1000000;
+			waitTime = (long) (1e3 / 60 - urdTime);
+			
+			try{
+				Thread.sleep(waitTime);
+			} catch(Exception e){}
+			
+		}
+	}
+	
+	private void init(){
+		running = true;
+		
+		image = new BufferedImage(width,height, BufferedImage.TYPE_INT_BGR);
+		g2d = (Graphics2D) image.getGraphics();
+		
+		tileMap = new TileMap("src/testmap.txt", 32);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private void update() {
+		tileMap.update();
+	}
+	
+	private void render() {
+		tileMap.draw(g2d);	
+	}
+	
+	private void draw() {
+		Graphics g = getGraphics();
+		g.drawImage(image, 0, 0,width,height, getParent());
+		g.dispose();
+		
+	}
+	
+	public static void main(String []args){
+		JFrame frame = new JFrame("lmao");
+		frame.setSize(1000, 1000);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
+		frame.add(new Neger(1000,1000));
+		frame.setVisible(true);
+	}
+}
