@@ -7,9 +7,9 @@ public class SavingsAccount extends Account {
 	
 	private static final double INTEREST = .005D;
 	
-	public SavingsAccount(Customer owner, int accountNumber, boolean active)
+	public SavingsAccount(Customer owner, boolean active)
 	{
-		super(owner, accountNumber, active);
+		super(owner, Long.parseLong(owner.getAttribute("customerNumber")) + owner.getAccounts().length + 1, active);
 	}
 	
 	public void addInterest()

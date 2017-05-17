@@ -25,13 +25,15 @@ public abstract class Account implements Serializable{
 		this.active = active;
 		//this.handler = handler;
 		handler = new FileHandler("bank/customers/" + owner.getAttribute("customerNumber") + "/accounts/", accountNumber + "", ".ser");
+		handler.writeObject(this);
 		this.owner = owner;
 		
 		//make sure that there is an account file for every account
 		//if(handler.readObject() != null)
-		//	throw new RuntimeException("Error trying to write account file that already exists for \n" + owner.getAttributes().toString());
+		//throw new RuntimeException("Error trying to write account file that already exists for \n" + owner.getAttributes().toString());
 			
-		handler.writeObject(this);
+		//handler.writeObject(this);
+		owner.addAccount(this);
 	}
 	
 	public boolean withdrawFunds(double ammount, String message)
@@ -70,6 +72,9 @@ public abstract class Account implements Serializable{
 		// Out with the old and in with the new
 		if(!handler.deleteFile())System.err.println("error removing old account log!");
 		handler.write(newLog);
+		System.out.println("updating file: " + this.handler.getCurrentDirectory());
+		this.handler.deleteFile();
+		this.handler.writeObject(this);
 	}
 	
 	public long getAccountNumber()
@@ -90,5 +95,10 @@ public abstract class Account implements Serializable{
 	public double getFunds()
 	{
 		return funds;
+	}
+	
+	public String toString()
+	{
+		return (this instanceof SavingsAccount ? "Savings" : "Transaction") + "  [" + accountNumber + "]";
 	}
 }

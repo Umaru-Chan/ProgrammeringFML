@@ -80,6 +80,7 @@ public class Customer implements Serializable{
 	 */
 	public void updateFile()
 	{
+		System.out.println("updating customer file, accounts: "+ getAccounts().length);
 		handler.deleteFile();
 		handler.set("bank/customers/" + getAttribute("customerNumber") + "/", getAttribute("customerNumber"), "ser");
 	    	    
@@ -99,23 +100,24 @@ public class Customer implements Serializable{
 		// if the list already contains accounts then remove them, they will be added again
 		//for(Account a : accounts)accounts.remove(a);
 		//for(int i = 0; i < accounts.size();)accounts.remove(i);
-		while(!accounts.isEmpty())accounts.remove(accounts.size());
-		//accounts.clear();  LOLOLOL
+		FileHandler tempHandler = new FileHandler("don't ","worry","about this");
+		accounts.clear();
+		
 		
 		for(int i = 1; true; i++) // should be while(true)
 		{
-			// COMPLAINT TO SELF:
-			// filehandler is really inconsistent, sometimes you write the '.' before fileformat and 
-			// sometimes not...... .... maby I should fix that...
 			if(FileHandler.fileExists("bank/customers/" + getAttribute("customerNumber") + "/accounts/" + 
 					(Long.parseLong(getAttribute("customerNumber")) + i) + ".ser"))
 			{
-				handler.set("bank/customers/" + getAttribute("customerNumber") + "/accounts/", 
+				tempHandler.set("bank/customers/" + getAttribute("customerNumber") + "/accounts/", 
 						(Long.parseLong(getAttribute("customerNumber")) + i) + "" ,"ser");
-				Account a = (Account) handler.readObject();
+				Account a = (Account) tempHandler.readObject();
 				if(a == null) continue; //if a is null, ignore it (it should NEVER be null ??!!?)
 				accounts.add(a instanceof SavingsAccount ? (SavingsAccount) a : (TransactionAccount) a);
-			}else return;
+			}else{
+				System.out.println("done updating accounts, accounts: " + getAccounts().length);
+				return;
+			}
 		}
 	}
 	
@@ -131,7 +133,16 @@ public class Customer implements Serializable{
 		result.set(result.getAttributeArray());
 		result.updateAccounts();
 		return result;
-		// return wot * wot | lmao & ayy;
+	}
+	
+	public boolean addAccount(Account account)
+	{
+		//if(account instanceof Account)return false; //should do more error checking
+		accounts.add(account);
+		updateFile();
+		//updateAccounts();
+		//updateAccounts();
+		return true;
 	}
 
 	public Account[] getAccounts() 

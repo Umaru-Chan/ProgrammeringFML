@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -32,10 +33,15 @@ public class GUI extends JFrame {
 	private JPanel loginPane, registrerPane, customerPane;
 	private final static String LOGIN_PANE = "login", REGISTRER_PANE = "registrer", CUSTOMER_PANE = "customer";
 
+	
+	private JPasswordField password;
+	private JTextField username;
+	
 	/**
 	 * Create the frame.
 	 */
 	public GUI() {
+		setTitle("");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 430, 315);
@@ -57,12 +63,12 @@ public class GUI extends JFrame {
 		panels.add(loginPane, LOGIN_PANE);
 		((CardLayout)panels.getLayout()).show(panels, LOGIN_PANE);				
 
-		JTextField username = new JTextField();
+		username = new JTextField();
 		username.setBounds(166, 84, 130, 26);
 		loginPane.add(username);
 		username.setColumns(10);
 
-		JPasswordField password = new JPasswordField();
+		password = new JPasswordField();
 		password.setBounds(166, 131, 130, 26);
 		loginPane.add(password);
 
@@ -191,7 +197,7 @@ public class GUI extends JFrame {
 		registrerPane.add(email);
 
 		phoneLabel = new JLabel("Phonenumber");
-		phoneLabel.setBounds(60, 254, 244, 16);
+		phoneLabel.setBounds(60, 245, 244, 16);
 		registrerPane.add(phoneLabel);
 
 		phone = new JTextField();
@@ -382,6 +388,8 @@ public class GUI extends JFrame {
 			setBounds(getX(), getY(), getWidth(), 315);
 			
 		});registrerPane.add(cancelButton);
+		username.setText("199808065991");
+		password.setText("C+&M3#PWP=]z?db");
 	}
 	
 	private void generateCustomerScreen(Customer currentCustomer)
@@ -389,22 +397,28 @@ public class GUI extends JFrame {
 		JButton logoutButton = new JButton("log out");
 		logoutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				CardLayout cl = (CardLayout)panels.getLayout();
+				cl.show(panels, LOGIN_PANE);
+				setBounds(getX(), getY(), 430, 315);
+				password.setText("");
+				username.setText("");
 			}
 		});
-		logoutButton.setBounds(21, 438, 117, 29);
+		logoutButton.setBounds(21, 418, 117, 29);
 		customerPane.add(logoutButton);
 		
 		JButton sendButton = new JButton("send");
 		sendButton.setEnabled(false);
-		sendButton.setBounds(150, 438, 117, 29);
+		sendButton.setBounds(150, 418, 117, 29);
 		customerPane.add(sendButton);
 		
 		JButton btnNewButton_2 = new JButton("New button");
-		btnNewButton_2.setBounds(279, 438, 117, 29);
+		btnNewButton_2.setBounds(279, 418, 117, 29);
 		customerPane.add(btnNewButton_2);
 		
+		
 		//generate data for table
-		String []   columnNames = {"Kontotyp", "$$€€¢¢¥¥", "öppnat datum"};
+		String []   columnNames = {"not", "needed", "anymore"};
 		Account[] 	accounts = currentCustomer.getAccounts();
 		Object [][] data = new Object[accounts.length][columnNames.length];
 		for(int i = 0; i < columnNames.length; i++)
@@ -413,36 +427,52 @@ public class GUI extends JFrame {
 			{
 				switch(i)
 				{
-				//kontotyp
 				case(0):data[j][i] = accounts[j] instanceof SavingsAccount ? "sparkonto" : "transaktionskonto"; break;
-				//mängd pengar på kontot
 				case(1):data[j][i] = accounts[j].getFunds(); break;
-				//öppningsdatum
 				case(2):data[j][i] = accounts[j].getOpeningDate(); break;
-				//no need for default case
+				
 				}
-				//System.out.println(accounts[j].getOpeningDate());
 			}
 		}
-		JTable table = new JTable(data, columnNames);
+
+
+		String[] accountData = new String[accounts.length];
+		for(int i = 0; i < accountData.length; i++)
+			accountData[i] = accounts[i] instanceof SavingsAccount ? "Saving" : "Transaction";
 		
-		//make sure that the table is not editable
-		DefaultTableModel tableModel = new DefaultTableModel() {
-		    public boolean isCellEditable(int row, int column) {
-		       //all cells false (not editable)
-		       return false;
-		    }
-		};
-		table.setModel(tableModel);
+		JLabel openingDate, funds, accountOpeningDate, accountFunds;
+		accountFunds = new JLabel(); 
+		accountOpeningDate = new JLabel();
 		
-		JScrollPane scrollPane = new JScrollPane();
-		//contentPane.add(table);
-		scrollPane.add(table);
-		customerPane.add(scrollPane);
+		openingDate = new JLabel("opened:");
+		openingDate.setBounds(240, 87, 60, 24);
+		accountOpeningDate.setBounds(240, 107, 200, 24);
+		funds = new JLabel("funds:");
+		funds.setBounds(240, 150, 60, 24);
+		accountFunds.setBounds(240, 170, 60, 24);
 		
-		//contentPane.add(table);
-		table.setFillsViewportHeight(true);		
-		table.setBounds(21, 87, 596, 242);
-		scrollPane.setBounds(table.getBounds());
+		JList<Account> accountList = new JList<Account>(accounts);
+		accountList.addListSelectionListener((e) -> 
+		{
+			Account currentSelection = accountList.getSelectedValue();
+			System.out.println(currentSelection.getFunds());
+			if(currentSelection.toString().contains("Transaction"))
+				sendButton.setEnabled(true);
+			else sendButton.setEnabled(false);
+			accountOpeningDate.setText(currentSelection.getOpeningDate().toString());
+			accountFunds.setText(currentSelection.getFunds() + "");
+			
+		});
+		
+		
+		JScrollPane scrollpane = new JScrollPane(accountList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		scrollpane.setBounds(21, 87, 200, 242);
+		customerPane.add(scrollpane);
+		customerPane.add(funds);
+		customerPane.add(openingDate);
+		customerPane.add(accountOpeningDate);
+		customerPane.add(accountFunds);
 	}
 }

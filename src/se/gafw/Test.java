@@ -3,6 +3,7 @@ package se.gafw;
 import java.util.Random;
 
 import se.gafw.customer.Customer;
+import se.gafw.customer.account.SavingsAccount;
 import se.gafw.customer.account.TransactionAccount;
 
 public class Test {
@@ -11,7 +12,7 @@ public class Test {
 	{
 		//TODO error checking
 		
-		String ssc = "199808065990";
+		String ssc = "199808065991";
 		
 		// ssc -> customerNumber
 		StringBuilder customerN = new StringBuilder();
@@ -22,11 +23,13 @@ public class Test {
 		String customerNumber = customerN.toString();
 		
 		Customer tempCustomer = Customer.getCustomer(customerNumber);//new Customer(generateAccountNumber(), "Alex", "efternamn", "???9238046565", "uWot-gatan 3", "19284.zip", "inte stockholm", "070112911", "temp@temp.se");
-		TransactionAccount ta = new TransactionAccount(tempCustomer, true);
+		SavingsAccount ta = new SavingsAccount(tempCustomer, true);
 		ta.deposit(100000, "LOLSLUMP EN MILJON KRONOR WOOOO!!!");
+		ta.withdrawFunds(400.23, "lamo");
 		//ta.withdrawFunds(150000, "RIP, banken är rånad och vi snor lite pengar...");
-		
+		System.out.println(ta.getFunds());
 		tempCustomer.updateFile();
+		System.out.println(tempCustomer.getAccounts().length);
 		
 		//199808065992
 		//EhQz7yOywEz)h!*

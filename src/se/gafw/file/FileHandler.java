@@ -212,6 +212,11 @@ public class FileHandler implements Serializable{
 		return file.getPath();
 	}
 	
+	public String getCurrentDirectory()
+	{
+		return file.getPath();
+	}
+	
 	private void logError(Exception e){logError(e.getMessage());}
 	private void logError(String message)
 	{
