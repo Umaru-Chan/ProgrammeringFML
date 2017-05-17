@@ -4,16 +4,20 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -388,6 +392,9 @@ public class GUI extends JFrame {
 			setBounds(getX(), getY(), getWidth(), 315);
 			
 		});registrerPane.add(cancelButton);
+		
+		
+		//TEMP
 		username.setText("199808065991");
 		password.setText("C+&M3#PWP=]z?db");
 	}
@@ -395,14 +402,12 @@ public class GUI extends JFrame {
 	private void generateCustomerScreen(Customer currentCustomer)
 	{
 		JButton logoutButton = new JButton("log out");
-		logoutButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		logoutButton.addActionListener(ae -> {
 				CardLayout cl = (CardLayout)panels.getLayout();
 				cl.show(panels, LOGIN_PANE);
 				setBounds(getX(), getY(), 430, 315);
 				password.setText("");
 				username.setText("");
-			}
 		});
 		logoutButton.setBounds(21, 418, 117, 29);
 		customerPane.add(logoutButton);
@@ -440,6 +445,8 @@ public class GUI extends JFrame {
 		for(int i = 0; i < accountData.length; i++)
 			accountData[i] = accounts[i] instanceof SavingsAccount ? "Saving" : "Transaction";
 		
+
+		
 		JLabel openingDate, funds, accountOpeningDate, accountFunds;
 		accountFunds = new JLabel(); 
 		accountOpeningDate = new JLabel();
@@ -450,10 +457,29 @@ public class GUI extends JFrame {
 		funds = new JLabel("funds:");
 		funds.setBounds(240, 150, 60, 24);
 		accountFunds.setBounds(240, 170, 60, 24);
-		
+
 		JList<Account> accountList = new JList<Account>(accounts);
+		
+		JButton showLogButton = new JButton("showLog");
+		showLogButton.setEnabled(false);
+		showLogButton.addActionListener(ae -> 
+		{
+			try {
+				JTextArea ta = new JTextArea(20, 60);
+				ta.read(new FileReader("bank/customers/"+ currentCustomer.getAttribute("customerNumber") +"/accounts/"+accountList.getSelectedValue().getAccountNumber()+"_LOG.txt"), null);
+				ta.setEditable(false);
+				JOptionPane.showMessageDialog(this, new JScrollPane(ta));
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		});
+		showLogButton.setBounds(408, 418, 117, 29);
+		customerPane.add(showLogButton);
+		
 		accountList.addListSelectionListener((e) -> 
 		{
+			showLogButton.setEnabled(true);
 			Account currentSelection = accountList.getSelectedValue();
 			System.out.println(currentSelection.getFunds());
 			if(currentSelection.toString().contains("Transaction"))
@@ -467,7 +493,7 @@ public class GUI extends JFrame {
 		
 		JScrollPane scrollpane = new JScrollPane(accountList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		
+
 		scrollpane.setBounds(21, 87, 200, 242);
 		customerPane.add(scrollpane);
 		customerPane.add(funds);

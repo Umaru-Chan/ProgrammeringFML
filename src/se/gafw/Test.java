@@ -24,7 +24,7 @@ public class Test {
 		
 		Customer tempCustomer = Customer.getCustomer(customerNumber);//new Customer(generateAccountNumber(), "Alex", "efternamn", "???9238046565", "uWot-gatan 3", "19284.zip", "inte stockholm", "070112911", "temp@temp.se");
 		SavingsAccount ta = new SavingsAccount(tempCustomer, true);
-		ta.deposit(100000, "LOLSLUMP EN MILJON KRONOR WOOOO!!!");
+		ta.deposit(1000, "LHAHAHAHAO!!!");
 		ta.withdrawFunds(400.23, "lamo");
 		//ta.withdrawFunds(150000, "RIP, banken är rånad och vi snor lite pengar...");
 		System.out.println(ta.getFunds());
