@@ -2,8 +2,6 @@ package se.gafw;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
@@ -16,11 +14,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 
 import se.gafw.customer.Customer;
 import se.gafw.customer.account.Account;
@@ -37,9 +33,12 @@ public class GUI extends JFrame {
 	private JPanel loginPane, registrerPane, customerPane;
 	private final static String LOGIN_PANE = "login", REGISTRER_PANE = "registrer", CUSTOMER_PANE = "customer";
 
-	
+	//needs to be used across several methods, therefore made members of the class instead of temporary variables
 	private JPasswordField password;
 	private JTextField username;
+	
+	// when logged in this will hold the current account
+	private Account currentSelection;
 	
 	/**
 	 * Create the frame.
@@ -48,7 +47,9 @@ public class GUI extends JFrame {
 		setTitle("");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 430, 315);
+		//setBounds(100, 100, 430, 315);
+		setSize(430, 315);
+		setLocationRelativeTo(null);
 
 		panels = new JPanel(new CardLayout());
 		setContentPane(panels);
@@ -139,6 +140,7 @@ public class GUI extends JFrame {
 			//switch to the newly generated user page
 			((CardLayout)panels.getLayout()).show(panels, CUSTOMER_PANE);
 			setBounds(getX(), getY(), 645, 495);
+			setLocationRelativeTo(null);
 			
 			//System.out.println("successfully logged in!!");
 		});
@@ -309,17 +311,18 @@ public class GUI extends JFrame {
 			//check phone
 			String phoneNumber = phone.getText();
 
-			for(char c : phoneNumber.toCharArray())
-				if(Character.isAlphabetic(c))
-				{
-					phoneLabel.setForeground(Color.RED);
-					error = true;
-				}
 			if(phoneNumber.length() < 3)
 			{
 				phoneLabel.setForeground(Color.RED);
 				error = true;
 			}else phoneLabel.setForeground(Color.BLACK);
+			for(char c : phoneNumber.toCharArray())
+				if(Character.isAlphabetic(c))
+				{
+					phoneLabel.setForeground(Color.RED);
+					System.out.println("lmao");
+					error = true;
+				}
 
 			//check city
 			if(city.getText().trim().length() < 2)
@@ -380,6 +383,8 @@ public class GUI extends JFrame {
 
 				CardLayout cl = (CardLayout)panels.getLayout();
 				cl.show(panels, LOGIN_PANE);
+				setSize(430, 315);
+				setLocationRelativeTo(null);
 				username.setText(newCustomer.getAttribute("socialSecurity"));
 			}
 		});registrerPane.add(finishRegistration);
@@ -395,19 +400,24 @@ public class GUI extends JFrame {
 		
 		
 		//TEMP
-		username.setText("199808065991");
-		password.setText("C+&M3#PWP=]z?db");
+		username.setText("199808065990");
+		password.setText("tW[&SX|w-4f>x<\"");
+		// usname = 189805962492
+		//     pw = {zGpOKF"`|+7[Jr
+		//     a1 = 523249306838
 	}
 	
 	private void generateCustomerScreen(Customer currentCustomer)
 	{
 		JButton logoutButton = new JButton("log out");
 		logoutButton.addActionListener(ae -> {
-				CardLayout cl = (CardLayout)panels.getLayout();
-				cl.show(panels, LOGIN_PANE);
-				setBounds(getX(), getY(), 430, 315);
-				password.setText("");
-				username.setText("");
+			for(int i = 0; i < customerPane.getComponentCount();)customerPane.remove(customerPane.getComponent(i));
+			CardLayout cl = (CardLayout)panels.getLayout();
+			cl.show(panels, LOGIN_PANE);
+			setBounds(getX(), getY(), 430, 315);
+			setLocationRelativeTo(null);
+			password.setText("");
+			username.setText("");
 		});
 		logoutButton.setBounds(21, 418, 117, 29);
 		customerPane.add(logoutButton);
@@ -417,36 +427,20 @@ public class GUI extends JFrame {
 		sendButton.setBounds(150, 418, 117, 29);
 		customerPane.add(sendButton);
 		
-		JButton btnNewButton_2 = new JButton("New button");
-		btnNewButton_2.setBounds(279, 418, 117, 29);
-		customerPane.add(btnNewButton_2);
+		JButton newAccountButton = new JButton("new account");
+		newAccountButton.setBounds(279, 418, 117, 29);
+		newAccountButton.setEnabled(false);
+		newAccountButton.setToolTipText("work in progress!"); //TODO 
+		customerPane.add(newAccountButton);
 		
+		JLabel welcomeLabel = new JLabel("Welcome " + currentCustomer.getAttribute("firstName") + " " + currentCustomer.getAttribute("lastName")+"!");
+		welcomeLabel.setBounds(21, 20, 150, 25);
 		
-		//generate data for table
-		String []   columnNames = {"not", "needed", "anymore"};
 		Account[] 	accounts = currentCustomer.getAccounts();
-		Object [][] data = new Object[accounts.length][columnNames.length];
-		for(int i = 0; i < columnNames.length; i++)
-		{
-			for(int j = 0; j < accounts.length; j++)
-			{
-				switch(i)
-				{
-				case(0):data[j][i] = accounts[j] instanceof SavingsAccount ? "sparkonto" : "transaktionskonto"; break;
-				case(1):data[j][i] = accounts[j].getFunds(); break;
-				case(2):data[j][i] = accounts[j].getOpeningDate(); break;
-				
-				}
-			}
-		}
-
-
 		String[] accountData = new String[accounts.length];
 		for(int i = 0; i < accountData.length; i++)
 			accountData[i] = accounts[i] instanceof SavingsAccount ? "Saving" : "Transaction";
-		
-
-		
+				
 		JLabel openingDate, funds, accountOpeningDate, accountFunds;
 		accountFunds = new JLabel(); 
 		accountOpeningDate = new JLabel();
@@ -460,12 +454,12 @@ public class GUI extends JFrame {
 
 		JList<Account> accountList = new JList<Account>(accounts);
 		
-		JButton showLogButton = new JButton("showLog");
+		JButton showLogButton = new JButton("show log");
 		showLogButton.setEnabled(false);
 		showLogButton.addActionListener(ae -> 
 		{
 			try {
-				JTextArea ta = new JTextArea(20, 60);
+				JTextArea ta = new JTextArea(20, 75);
 				ta.read(new FileReader("bank/customers/"+ currentCustomer.getAttribute("customerNumber") +"/accounts/"+accountList.getSelectedValue().getAccountNumber()+"_LOG.txt"), null);
 				ta.setEditable(false);
 				JOptionPane.showMessageDialog(this, new JScrollPane(ta));
@@ -477,11 +471,12 @@ public class GUI extends JFrame {
 		showLogButton.setBounds(408, 418, 117, 29);
 		customerPane.add(showLogButton);
 		
-		accountList.addListSelectionListener((e) -> 
+		
+		accountList.addListSelectionListener(ae -> 
 		{
 			showLogButton.setEnabled(true);
-			Account currentSelection = accountList.getSelectedValue();
-			System.out.println(currentSelection.getFunds());
+			currentSelection = accountList.getSelectedValue();
+			//System.out.println(currentSelection.getFunds());
 			if(currentSelection.toString().contains("Transaction"))
 				sendButton.setEnabled(true);
 			else sendButton.setEnabled(false);
@@ -490,11 +485,90 @@ public class GUI extends JFrame {
 			
 		});
 		
+		sendButton.addActionListener(ae -> {
+			JFrame sendFrame = new JFrame("send");
+			JPanel panel = new JPanel();
+			
+			JTextField ammountField = new JTextField();
+			ammountField.setBounds(10, 25, 100, 25);
+			JLabel ammountLabel = new JLabel("ammount");
+			ammountLabel.setBounds(10, 5, 100, 25);
+
+			JTextField messageField = new JTextField();
+			messageField.setBounds(10, 75, 100, 25);
+			JLabel messageLabel = new JLabel("message");
+			messageLabel.setBounds(10, 50, 100, 25);
+			
+			
+			JTextField targetField = new JTextField();
+			targetField.setBounds(10, 125, 100, 25);
+			JLabel targetLabel = new JLabel("recipient");
+			targetLabel.setBounds(10, 105, 100, 25);
+			
+			JButton confirmButton = new JButton("send");
+			confirmButton.setBounds(10, 165, 117, 29);
+			confirmButton.addActionListener(e -> {
+				double ammount;
+				try{
+					ammount = Double.parseDouble(ammountField.getText());
+				}catch(Exception ex){
+					ammountLabel.setForeground(Color.RED);
+					return;
+				}
+				
+				long target;
+				try{
+					target = Long.parseLong(targetField.getText());
+				}catch(Exception ex){
+					targetLabel.setForeground(Color.RED);
+					return;
+				}
+				
+				if(!currentSelection.send(target, ammount, messageField.getText()))
+				{
+					//if there was an error sending
+					sendFrame.setVisible(false);
+					sendFrame.dispose();
+					JOptionPane.showMessageDialog(this, "there was an error sending the money", "error", JOptionPane.ERROR_MESSAGE);
+				}else{
+					sendFrame.setVisible(false);
+					sendFrame.dispose();
+					JOptionPane.showMessageDialog(this, "successfully transfered " + ammount + "to " + target, "", JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+			JButton cancelButton = new JButton("cancel");
+			cancelButton.setBounds(10, 190, 117, 29);
+			cancelButton.addActionListener(ea->
+			{
+				sendFrame.setVisible(false);
+				sendFrame.dispose();
+			});
+			
+			panel.add(cancelButton);
+			panel.add(confirmButton);
+			panel.add(targetField);
+			panel.add(messageField);
+			panel.add(ammountField);
+			panel.add(targetLabel);
+			panel.add(messageLabel);
+			panel.add(ammountLabel);
+			
+			panel.setLayout(null);
+			panel.setSize(140, 240);
+			
+			sendFrame.setResizable(false);
+			sendFrame.setVisible(true);
+			sendFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+			sendFrame.add(panel);
+			sendFrame.setSize(140,240);
+			sendFrame.setLocationRelativeTo(this);
+		});
 		
 		JScrollPane scrollpane = new JScrollPane(accountList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 		scrollpane.setBounds(21, 87, 200, 242);
+		customerPane.add(welcomeLabel);
 		customerPane.add(scrollpane);
 		customerPane.add(funds);
 		customerPane.add(openingDate);

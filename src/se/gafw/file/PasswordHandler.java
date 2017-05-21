@@ -36,7 +36,6 @@ public class PasswordHandler implements Serializable{
 		}
 		for(int i = 0; i < data.length; i+=2)
 		{
-			System.out.println(data[i].equals(ssc));
 			if(data[i].equals(ssc) && data[i+1].equals(pw))return true;
 		}
 		return false;

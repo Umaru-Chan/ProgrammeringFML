@@ -103,7 +103,6 @@ public class Customer implements Serializable{
 		FileHandler tempHandler = new FileHandler("don't ","worry","about this");
 		accounts.clear();
 		
-		
 		for(int i = 1; true; i++) // should be while(true)
 		{
 			if(FileHandler.fileExists("bank/customers/" + getAttribute("customerNumber") + "/accounts/" + 
@@ -115,18 +114,17 @@ public class Customer implements Serializable{
 				if(a == null) continue; //if a is null, ignore it (it should NEVER be null ??!!?)
 				accounts.add(a instanceof SavingsAccount ? (SavingsAccount) a : (TransactionAccount) a);
 			}else{
-				System.out.println("done updating accounts, accounts: " + getAccounts().length);
 				return;
 			}
 		}
 	}
 	
-	public static Customer getCustomer(String customerNumber) throws Exception
+	public static Customer getCustomer(String customerNumber)
 	{
 		if(!FileHandler.fileExists("bank/customers/" + customerNumber + "/" + customerNumber + ".ser"))
 		{
 			// this does not need an exception.... what am I even doing??
-			throw new Exception("customer {" + customerNumber + "} does not exist.");
+			return null;
 		}
 		FileHandler handler = new FileHandler("bank/customers/" + customerNumber + "/", customerNumber, ".ser");
 		Customer result = (Customer)handler.readObject();

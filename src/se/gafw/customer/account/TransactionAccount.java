@@ -8,7 +8,6 @@ public class TransactionAccount extends Account{
 	public TransactionAccount(Customer owner, boolean active) 
 	{
 		super(owner, Long.parseLong(owner.getAttribute("customerNumber")) + owner.getAccounts().length + 1, active);
-		System.out.println("n" + owner.getAccounts().length + 1);
 	}
 
 }
